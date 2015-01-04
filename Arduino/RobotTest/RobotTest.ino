@@ -38,7 +38,7 @@ void loop()
 
 // Function to move the robot forward.
 
-void MoveForward(int speed, int seconds)
+void MoveForward(int speed, float seconds)
 {
   motors.setM1Speed(speed*M1_SCALING);
   motors.setM2Speed(speed*M2_SCALING);
