@@ -1,10 +1,7 @@
 #include <DRV8835MotorShield.h>
 
 /*
- * This example uses the DRV8835MotorShield library to drive each motor with the
- * Pololu DRV8835 Dual Motor Driver Shield for Arduino forward, then backward. 
- * The yellow user LED is on when a motor is set to a positive speed and off when
- * a motor is set to a negative speed.
+ * Based on the DRV8835MotorShield library example.
  */
 
 #define LED_PIN 13
