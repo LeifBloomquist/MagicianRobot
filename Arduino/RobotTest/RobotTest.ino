@@ -19,7 +19,7 @@ void setup()
   
   Wait(9); // 9 second delay
   digitalWrite(LED_PIN, HIGH);   // Turn on LED
-  Wait(1);
+  Wait(1); // 1 second warning
   
   // if your motors' directions need to be flipped
   motors.flipM1(true);
