@@ -4,36 +4,43 @@
  * Based on the DRV8835MotorShield library example.
  */
 
-#define LED_PIN 13
+#define PIN_LED 13
 
-#define M1_SCALING 0.95
-#define M2_SCALING 1.00
+#define M1_SCALING 1.07   // Right
+#define M2_SCALING 1.00   // Left
+
+#define PIN_ENVELOPE_IN A1
+
+#define QUIET 100
+#define CLAP  300
 
 DRV8835MotorShield motors;
 
 void setup()
 {
-  pinMode(LED_PIN, OUTPUT);
+  pinMode(PIN_LED, OUTPUT);
+  digitalWrite(LED_LED, HIGH);   // Turn on LED
   
   Stop();
-  
-  Wait(9); // 9 second delay
-  digitalWrite(LED_PIN, HIGH);   // Turn on LED
-  Wait(1); // 1 second warning
-  
+    
   // if your motors' directions need to be flipped
   motors.flipM1(true);
   motors.flipM2(false);
+
+  Serial.begin(9600);
 }
 
 void loop()
 {
-    MoveForward(150, 5);
-    TurnRight(400, 0.2);
-    MoveForward(150, 4);
-    TurnLeft(400, 0.2);
+    Stop();    
+    WaitForClap();
+    MoveForward(150, 0);
+    
+    //TurnRight(400, 0.2);
+    //MoveForward(150, 4);
+    //TurnLeft(400, 0.2);
 
-    Wait(5);
+//    Wait(5);
 }
 
 // Function to move the robot forward.
@@ -43,7 +50,14 @@ void MoveForward(int speed, float seconds)
   motors.setM1Speed(speed*M1_SCALING);
   motors.setM2Speed(speed*M2_SCALING);
   
-  Wait(seconds);
+  if (seconds == 0)
+  {
+     WaitForClap();
+  }
+  else
+  {
+    Wait(seconds);
+  }
   
   // Slow down
   for (int ramp=speed; speed >= 0; speed--)
@@ -116,3 +130,62 @@ void Wait(float seconds)
 {
   delay(seconds*1000);
 }
+
+
+// Function to wait for a clap
+void WaitForClap()
+{
+  int value=0;
+  
+  // Part 1 - Wait for quiet. 
+  value = analogRead(PIN_ENVELOPE_IN); 
+  
+  while (value > QUIET) 
+  {
+    // Keep waiting.
+    value = analogRead(PIN_ENVELOPE_IN);
+  }
+  Serial.println("Quiet before.");
+
+  // Part 2 - Wait for clap
+   value = analogRead(PIN_ENVELOPE_IN); 
+  
+  while (value < CLAP) 
+  {
+    // Keep waiting.
+    value = analogRead(PIN_ENVELOPE_IN);
+  }
+  Serial.println("Clap!");
+  
+  // Part 3 - Wait for quiet again.  
+  value = analogRead(PIN_ENVELOPE_IN); 
+  
+  while (value > QUIET) 
+  {
+    // Keep waiting.
+    value = analogRead(PIN_ENVELOPE_IN);
+  }
+  Serial.println("Quiet after."); 
+}
+
+void BarGraph()
+{
+  do
+  {
+    
+   // Check the envelope input
+   int value = analogRead(PIN_ENVELOPE_IN);
+
+   Serial.print("Value: ");
+   
+   int bar = value/10;
+   
+   for (int i=0; i<bar; i++)
+   {
+      Serial.print("*");
+   }
+   
+   Serial.println("");
+  } while (true);
+}
+
