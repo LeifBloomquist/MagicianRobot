@@ -12,10 +12,10 @@
 #define M1_SCALING 1.25   // Right
 #define M2_SCALING 1.00   // Left
 
-#define PIN_LED 13
-#define PIN_ENVELOPE_IN A1
-#define PIN_RX          3
-#define PIN_TX          4
+#define PIN_LED          13
+#define PIN_ENVELOPE_IN  A1
+#define PIN_RX           3
+#define PIN_TX           4
 
 #define QUIET 100
 #define CLAP  300
@@ -53,7 +53,7 @@ void setup()
         Serial.println("FAILED TO INITALIZE"); //Initialize device and check for errors
     }
   
-    sensor.VL6180xDefautSettings(); //Load default settings to get started.
+    sensor.VL6180xDefautSettings(); // Load default settings to get started.
  
     pinMode(PIN_LED, OUTPUT);
     digitalWrite(PIN_LED, HIGH);   // Turn on LED to show ready
@@ -70,7 +70,7 @@ void loop()
     while (true)
     {        
         wifiSerial.print("Roby is waiting for a command: ");        
-        String command = GetInput();       
+        String command = GetInput();
 
         if (command == "fw")
         {
@@ -107,15 +107,6 @@ void loop()
 
         wifiSerial.println();
     }
-
-/*    WaitForClap();
-    
-    while (true)
-    {
-      MoveForwardToDistance(150, 16.0);
-      TurnLeft(135, 0.1);
-    }
-    */
 }
 
 // Function to move the robot forward.
@@ -125,14 +116,7 @@ void MoveForward(int speed, float seconds)
   motors.setM1Speed(speed*M1_SCALING);
   motors.setM2Speed(speed*M2_SCALING);
   
-  if (seconds == 0)
-  {
-     WaitForClap();
-  }
-  else
-  {
-    Wait(seconds);
-  }
+  Wait(seconds);
   
   // Slow down
   for (int ramp=speed; speed >= 0; speed--)
@@ -288,24 +272,36 @@ String GetInput_Raw()
     while (true)
     {
         key = ReadByte(wifiSerial); // Read in one character
-        temp[i] = key;
-        wifiSerial.write(key); // Echo key press back to the user.
 
-        if (IsBackSpace(key) && (i > 0)) i -= 2; // Handles back space.        
-
-        if (((int)key == 13) || (i == max_length - 1))   // The 13 represents enter key.
+        if (!IsBackSpace(key))  // Handle character, if not backspace
         {
-            temp[i] = 0; // Terminate the string with 0.
-            return String(temp);
+            temp[i] = key;
+            wifiSerial.write(key);    // Echo key press back to the user
+
+            if (((int)key == 13) || (i >= (max_length-1)))   // The 13 represents enter key.
+            {
+                temp[i] = 0; // Terminate the string with 0.
+                return String(temp);
+            }
+            i++;
         }
-        i++;
+        else     // Backspace
+        {
+            if (i > 0)
+            {
+                wifiSerial.write(key);
+                i--;
+            }
+        }
+
+        // Make sure didn't go negative
         if (i < 0) i = 0;
     }
 }
 
 boolean IsBackSpace(char c)
 {
-    if ((c == 8) || (c == 20))
+    if ((c == 8) || (c == 20) || (c ==127))
     {
         return true;
     }
