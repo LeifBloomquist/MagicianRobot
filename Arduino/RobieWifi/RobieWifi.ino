@@ -68,7 +68,9 @@ void loop()
     wifiSerial.println();
     
     while (true)
-    {        
+    {     
+        int distance = sensor.getDistance();
+
         wifiSerial.print("Roby is waiting for a command: ");        
         String command = GetInput();
 
@@ -93,8 +95,8 @@ void loop()
             MoveBackward(150, seconds);
         }
         else if (command == "scan")
-        {
-            int distance = sensor.getDistance();
+        {   
+            distance = sensor.getDistance();
             wifiSerial.print("Distance is ");
             wifiSerial.print(distance / 10.0);
             wifiSerial.println(" cm");
