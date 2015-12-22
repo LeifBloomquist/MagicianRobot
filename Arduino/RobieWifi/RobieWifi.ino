@@ -117,15 +117,7 @@ void MoveForward(int speed, float seconds)
   motors.setM2Speed(speed*M2_SCALING);
   
   Wait(seconds);
-  
-  // Slow down
-  for (int ramp=speed; speed >= 0; speed--)
-  {
-    motors.setM1Speed(ramp*M1_SCALING);
-    motors.setM2Speed(ramp*M2_SCALING);
-    delay(2);
-  }
-  
+
   Stop();
 }
   
@@ -133,22 +125,7 @@ void MoveForward(int speed, float seconds)
   
 void MoveBackward(int speed, float seconds)
 {
-  speed = -speed;
-  
-  motors.setM1Speed(speed*M1_SCALING);
-  motors.setM2Speed(speed*M2_SCALING);
-  
-  Wait(seconds);
-  
-  // Slow down
-  for (int ramp=speed; speed <= 0; speed++)
-  {
-    motors.setM1Speed(ramp*M1_SCALING);
-    motors.setM2Speed(ramp*M2_SCALING);
-    delay(2);
-  }
-  
-  Stop();
+    MoveForward(-speed, seconds);
 }
  
  
