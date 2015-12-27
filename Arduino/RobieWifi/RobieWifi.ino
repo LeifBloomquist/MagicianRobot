@@ -74,7 +74,11 @@ void loop()
         wifiSerial.print("Roby is waiting for a command: ");        
         String command = GetInput();
 
-        if (command == "fw")
+        if (command.length() == 0)
+        {
+            continue;
+        }
+        else if (command == "fw")
         {
             float seconds = HowManySeconds();
             MoveForward(150, seconds);
@@ -101,10 +105,23 @@ void loop()
             wifiSerial.print(distance / 10.0);
             wifiSerial.println(" cm");
         }
+        else if (command == "help")
+        {
+            wifiSerial.println("\n\r"
+                "Roby understands these commands:\n\r" 
+                "fw = forward\n\r" 
+                "bw = backward\n\r" 
+                "left = turn left\n\r" 
+                "right = turn right\n\r"
+                "scan = finds distance to the nearest object in front\n\r"
+                "help = display commands");
+        }
         else
         {
             wifiSerial.print("I don't understand: ");
             wifiSerial.println(command);
+            //wifiSerial.print("DEBUG: Length=");
+            //wifiSerial.println(command.length());
         }
 
         wifiSerial.println();
@@ -250,7 +267,17 @@ String GetInput_Raw()
 
     while (true)
     {
-        key = ReadByte(wifiSerial); // Read in one character
+        key = ReadByte(wifiSerial);  // Read in one character
+
+        // wifiSerial.print("DEBUG: Key=");
+        // wifiSerial.println((int)key);
+
+        // For Roby Telnet
+        if (key < 0) 
+        {
+            continue;
+        }
+
 
         if (!IsBackSpace(key))  // Handle character, if not backspace
         {
@@ -280,7 +307,7 @@ String GetInput_Raw()
 
 boolean IsBackSpace(char c)
 {
-    if ((c == 8) || (c == 20) || (c ==127))
+    if ((c == 8) || (c == 20) || (c == 127))
     {
         return true;
     }
