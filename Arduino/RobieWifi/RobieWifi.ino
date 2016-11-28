@@ -12,6 +12,7 @@
 #define M1_SCALING 1.25   // Right
 #define M2_SCALING 1.00   // Left
 
+#define PIN_SPEAKER      12
 #define PIN_LED          13
 #define PIN_ENVELOPE_IN  A1
 #define PIN_RX           3
@@ -58,6 +59,10 @@ void setup()
     pinMode(PIN_LED, OUTPUT);
     digitalWrite(PIN_LED, HIGH);   // Turn on LED to show ready
 
+    Beep(300, 0.2);
+    Beep(600, 0.2);
+    Beep(900, 0.2);
+
     wifiSerial.println();
     wifiSerial.println("Roby is ready!");    
 }
@@ -68,64 +73,71 @@ void loop()
     wifiSerial.println();
     
     while (true)
-    {     
-        int distance = sensor.getDistance();
-
-        wifiSerial.print("Roby is waiting for a command: ");        
-        String command = GetInput();
-
-        if (command.length() == 0)
-        {
-            continue;
-        }
-        else if (command == "fw")
-        {
-            float seconds = HowManySeconds();
-            MoveForward(150, seconds);
-        }
-        else if (command == "left")
-        {
-            float seconds = HowManySeconds();
-            TurnLeft(50, seconds);
-        }
-        else if (command == "right")
-        {
-            float seconds = HowManySeconds();
-            TurnRight(50, seconds);
-        }
-        else if (command == "bw")
-        {
-            float seconds = HowManySeconds();
-            MoveBackward(150, seconds);
-        }
-        else if (command == "scan")
-        {   
-            distance = sensor.getDistance();
-            wifiSerial.print("Distance is ");
-            wifiSerial.print(distance / 10.0);
-            wifiSerial.println(" cm");
-        }
-        else if (command == "help")
-        {
-            wifiSerial.println("\n\r"
-                "Roby understands these commands:\n\r" 
-                "fw = forward\n\r" 
-                "bw = backward\n\r" 
-                "left = turn left\n\r" 
-                "right = turn right\n\r"
-                "scan = finds distance to the nearest object in front\n\r"
-                "help = display commands");
-        }
-        else
-        {
-            wifiSerial.print("I don't understand: ");
-            wifiSerial.println(command);
-            //wifiSerial.print("DEBUG: Length=");
-            //wifiSerial.println(command.length());
-        }
-
-        wifiSerial.println();
+    { 
+      GetCommand();
     }
+}
+
+void GetCommand()
+{
+      int distance = sensor.getDistance();
+
+      Beep(300, 0.05);
+      wifiSerial.print("Roby is waiting for a command: ");        
+      String command = GetInput();
+
+      if (command.length() == 0)
+      {
+          return;
+      }
+      else if (command == "fw")
+      {
+          float seconds = HowManySeconds();
+          MoveForward(150, seconds);
+      }
+      else if (command == "left")
+      {
+          float seconds = HowManySeconds();
+          TurnLeft(50, seconds);
+      }
+      else if (command == "right")
+      {
+          float seconds = HowManySeconds();
+          TurnRight(50, seconds);
+      }
+      else if (command == "bw")
+      {
+          float seconds = HowManySeconds();
+          MoveBackward(150, seconds);
+      }
+      else if (command == "scan")
+      {   
+          distance = sensor.getDistance();
+          wifiSerial.print("Distance is ");
+          wifiSerial.print(distance / 10.0);
+          wifiSerial.println(" cm");
+      }
+      else if (command == "help")
+      {
+          wifiSerial.println("\n\r"
+              "Roby understands these commands:\n\r" 
+              "fw = forward\n\r" 
+              "bw = backward\n\r" 
+              "left = turn left\n\r" 
+              "right = turn right\n\r"
+              "scan = finds distance to the nearest object in front\n\r"
+              "help = display commands");
+      }
+      else
+      {
+          wifiSerial.print("I don't understand: ");
+          wifiSerial.println(command);
+          Beep(50, 0.1);
+          //wifiSerial.print("DEBUG: Length=");
+          //wifiSerial.println(command.length());
+      }
+
+      wifiSerial.println();
 }
 
 // Function to move the robot forward.
@@ -329,3 +341,12 @@ float HowManySeconds()
     float seconds = GetInput().toFloat();
     return seconds;
 }
+
+// Function to Beep
+void Beep(int frequency, float seconds)
+{
+  tone(PIN_SPEAKER, frequency);
+  Wait(seconds);
+  noTone(PIN_SPEAKER);
+}
+
